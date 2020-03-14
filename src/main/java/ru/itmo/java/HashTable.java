@@ -58,13 +58,22 @@ public class HashTable {
     }
 
     Object put(Object key, Object value) {
+        //find to replace
         int hash = resHash(key);
-        while (Dict[hash] != null && !Deleted[hash]) {
+        while (Dict[hash] != null) {
             if (key.equals(Dict[hash].key)) {
                 Object exValue = Dict[hash].value;
                 Dict[hash].value = value;
                 return exValue;
             }
+            hash++;
+            if (hash == Dict.length) {
+                hash = 0;
+            }
+        }
+        //find to put new
+        hash = resHash(key);
+        while (Dict[hash] != null && !Deleted[hash]) {
             hash++;
             if (hash == Dict.length) {
                 hash = 0;
