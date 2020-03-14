@@ -6,6 +6,7 @@ public class HashTable {
 
     private final int INITIAL_CAPACITY = 1024;
     private final float LOAD_FACTOR = 0.5f;
+    private int threshold;
 
     private class Entry {
 
@@ -18,7 +19,6 @@ public class HashTable {
     }
 
     private int size = 0;
-    private int realSize = 0;
     private final float loadFactor;
     private Entry[] Dict;
     private Boolean[] Deleted;
@@ -26,6 +26,7 @@ public class HashTable {
     public HashTable() {
         loadFactor = LOAD_FACTOR;
         Dict = new Entry[INITIAL_CAPACITY];
+        this.threshold = (int) (this.Dict.length * this.loadFactor);
         Deleted = new Boolean[INITIAL_CAPACITY];
         Arrays.fill(Deleted, false);
 
@@ -35,6 +36,7 @@ public class HashTable {
         loadFactor = LOAD_FACTOR;
         Dict = new Entry[initialCapacity];
         Deleted = new Boolean[initialCapacity];
+        this.threshold = (int) (this.Dict.length * this.loadFactor);
         Arrays.fill(Deleted, false);
 
     }
@@ -43,6 +45,7 @@ public class HashTable {
         this.loadFactor = lF;
         Dict = new Entry[initialCapacity];
         Deleted = new Boolean[initialCapacity];
+        this.threshold = (int) (this.Dict.length * this.loadFactor);
         Arrays.fill(Deleted, false);
     }
 
@@ -68,21 +71,18 @@ public class HashTable {
             }
         }
 
-        if (!Deleted[hash]) {
-            realSize++;
-        }
         Deleted[hash] = false;
 
         Dict[hash] = new Entry(key, value);
         size++;
         // Dict.length * loadfactor = threshold
-        if (realSize > Dict.length * loadFactor) {
+        if (size > threshold) {
             Entry[] exDict = Dict;
             Dict = new Entry[exDict.length * 2];
             size = 0;
-            realSize = 0;
             Deleted = new Boolean[Dict.length];
             Arrays.fill(Deleted, false);
+            this.threshold = (int) (this.Dict.length * this.loadFactor);
 
             for (Entry pair : exDict) {
                 if (pair != null && pair.key != null && pair.value != null) {
