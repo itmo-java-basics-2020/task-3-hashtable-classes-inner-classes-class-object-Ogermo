@@ -59,7 +59,7 @@ public class HashTable {
 
     Object put(Object key, Object value) {
         int hash = resHash(key);
-        while (Dict[hash] != null || Deleted[hash]) {
+        while (Dict[hash] != null && !Deleted[hash]) {
             if (key.equals(Dict[hash].key)) {
                 Object exValue = Dict[hash].value;
                 Dict[hash].value = value;
@@ -72,7 +72,6 @@ public class HashTable {
         }
 
         Deleted[hash] = false;
-
         Dict[hash] = new Entry(key, value);
         size++;
         // Dict.length * loadfactor = threshold
