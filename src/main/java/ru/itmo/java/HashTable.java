@@ -6,7 +6,6 @@ public class HashTable {
 
     private final int INITIAL_CAPACITY = 1024;
     private final float LOAD_FACTOR = 0.5f;
-    private final float THRESHOLD_FACTOR = 0.6f;
 
     private class Entry {
 
@@ -76,8 +75,8 @@ public class HashTable {
 
         Dict[hash] = new Entry(key, value);
         size++;
-        // Dict.length * THRESHOLD_FACTOR = threshold
-        if ((THRESHOLD_FACTOR > loadFactor && realSize > Dict.length * THRESHOLD_FACTOR) || (size > Dict.length * loadFactor)) {
+        // Dict.length * loadfactor = threshold
+        if (realSize > Dict.length * loadFactor) {
             Entry[] exDict = Dict;
             Dict = new Entry[exDict.length * 2];
             size = 0;
