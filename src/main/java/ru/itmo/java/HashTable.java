@@ -71,10 +71,11 @@ public class HashTable {
             }
         }
 
-        Deleted[hash] = false;
         if (!Deleted[hash]) {
             realSize++;
         }
+        Deleted[hash] = false;
+
         Dict[hash] = new Entry(key, value);
         size++;
         // Dict.length * THRESHOLD_FACTOR = threshold
@@ -83,6 +84,10 @@ public class HashTable {
             Dict = new Entry[exDict.length * 2];
             size = 0;
             realSize = 0;
+            Deleted = new Boolean[Dict.length];
+            for (int i = 0; i < Deleted.length; i++) {
+                Deleted[i] = false;
+            }
             for (Entry pair : exDict) {
                 if (pair != null && pair.key != null && pair.value != null) {
                     put(pair.key, pair.value);
