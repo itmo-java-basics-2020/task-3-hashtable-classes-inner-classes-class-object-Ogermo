@@ -70,10 +70,11 @@ public class HashTable {
                 hash = 0;
             }
         }
+
+        Deleted[hash] = false;
         if (!Deleted[hash]) {
             realSize++;
         }
-        Deleted[hash] = false;
         Dict[hash] = new Entry(key, value);
         size++;
         // Dict.length * THRESHOLD_FACTOR = threshold
