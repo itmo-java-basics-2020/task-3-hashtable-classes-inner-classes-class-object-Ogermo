@@ -1,5 +1,7 @@
 package ru.itmo.java;
 
+import java.util.Arrays;
+
 public class HashTable {
 
     private final int INITIAL_CAPACITY = 1024;
@@ -26,27 +28,23 @@ public class HashTable {
         loadFactor = LOAD_FACTOR;
         Dict = new Entry[INITIAL_CAPACITY];
         Deleted = new Boolean[INITIAL_CAPACITY];
-        for (int i = 0; i < Deleted.length; i++) {
-            Deleted[i] = false;
-        }
+        Arrays.fill(Deleted, false);
+
     }
 
     public HashTable(int initialCapacity) {
         loadFactor = LOAD_FACTOR;
         Dict = new Entry[initialCapacity];
         Deleted = new Boolean[initialCapacity];
-        for (int i = 0; i < Deleted.length; i++) {
-            Deleted[i] = false;
-        }
+        Arrays.fill(Deleted, false);
+
     }
 
     public HashTable(int initialCapacity, float lF) {
         this.loadFactor = lF;
         Dict = new Entry[initialCapacity];
         Deleted = new Boolean[initialCapacity];
-        for (int i = 0; i < Deleted.length; i++) {
-            Deleted[i] = false;
-        }
+        Arrays.fill(Deleted, false);
     }
 
     private int resHash(Object key) {
@@ -79,15 +77,14 @@ public class HashTable {
         Dict[hash] = new Entry(key, value);
         size++;
         // Dict.length * THRESHOLD_FACTOR = threshold
-        if (realSize > Dict.length * THRESHOLD_FACTOR || size > Dict.length * loadFactor) {
+        if ((THRESHOLD_FACTOR > loadFactor && realSize > Dict.length * THRESHOLD_FACTOR) || (size > Dict.length * loadFactor)) {
             Entry[] exDict = Dict;
             Dict = new Entry[exDict.length * 2];
             size = 0;
             realSize = 0;
             Deleted = new Boolean[Dict.length];
-            for (int i = 0; i < Deleted.length; i++) {
-                Deleted[i] = false;
-            }
+            Arrays.fill(Deleted, false);
+
             for (Entry pair : exDict) {
                 if (pair != null && pair.key != null && pair.value != null) {
                     put(pair.key, pair.value);
