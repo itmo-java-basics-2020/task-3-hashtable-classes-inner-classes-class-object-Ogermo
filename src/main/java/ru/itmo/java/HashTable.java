@@ -4,96 +4,75 @@ import java.util.Arrays;
 
 public class HashTable {
 
-    private final int INITIAL_CAPACITY = 1024;
-    private final float LOAD_FACTOR = 0.5f;
+    private static final int INITIAL_CAPACITY = 1024;
+    private static final float LOAD_FACTOR = 0.5f;
     private int threshold;
-
-    private class Entry {
-
-        Object key, value;
-
-        public Entry(Object k, Object v) {
-            this.key = k;
-            this.value = v;
-        }
-    }
 
     private int size = 0;
     private final float loadFactor;
-    private Entry[] Dict;
-    private Boolean[] Deleted;
+    private Entry[] dict;
+    private Boolean[] deleted;
 
     public HashTable() {
-        loadFactor = LOAD_FACTOR;
-        Dict = new Entry[INITIAL_CAPACITY];
-        this.threshold = (int) (this.Dict.length * this.loadFactor);
-        Deleted = new Boolean[INITIAL_CAPACITY];
-        Arrays.fill(Deleted, false);
-
+        this(INITIAL_CAPACITY,LOAD_FACTOR);
     }
 
     public HashTable(int initialCapacity) {
-        loadFactor = LOAD_FACTOR;
-        Dict = new Entry[initialCapacity];
-        Deleted = new Boolean[initialCapacity];
-        this.threshold = (int) (this.Dict.length * this.loadFactor);
-        Arrays.fill(Deleted, false);
-
+        this(initialCapacity,LOAD_FACTOR);
     }
 
     public HashTable(int initialCapacity, float lF) {
         this.loadFactor = lF;
-        Dict = new Entry[initialCapacity];
-        Deleted = new Boolean[initialCapacity];
-        this.threshold = (int) (this.Dict.length * this.loadFactor);
-        Arrays.fill(Deleted, false);
+        dict = new Entry[initialCapacity];
+        deleted = new Boolean[initialCapacity];
+        this.threshold = (int) (this.dict.length * this.loadFactor);
+        Arrays.fill(deleted, false);
     }
 
     private int resHash(Object key) {
-        int hash = key.hashCode() % Dict.length;
+        int hash = key.hashCode() % dict.length;
         if (hash < 0) {
-            hash += Dict.length;
+            hash += dict.length;
         }
         return hash;
     }
 
-    Object put(Object key, Object value) {
+    public Object put(Object key, Object value) {
         //find to replace
+        int putNew;
         int hash = resHash(key);
-        while (Dict[hash] != null) {
-            if (key.equals(Dict[hash].key)) {
-                Object exValue = Dict[hash].value;
-                Dict[hash].value = value;
+        hash = FindNextEntry(hash-1);
+        while (hash != -1){
+            if (key.equals(dict[hash].key)) {
+                Object exValue = dict[hash].value;
+                dict[hash].value = value;
                 return exValue;
             }
-            hash++;
-            if (hash == Dict.length) {
-                hash = 0;
-            }
+            hash = FindNextEntry(hash);
         }
         //find to put new
         hash = resHash(key);
-        while (Dict[hash] != null && !Deleted[hash]) {
+        while (dict[hash] != null && !deleted[hash]) {
             hash++;
-            if (hash == Dict.length) {
+            if (hash == dict.length) {
                 hash = 0;
             }
         }
 
-        Deleted[hash] = false;
-        Dict[hash] = new Entry(key, value);
+        deleted[hash] = false;
+        dict[hash] = new Entry(key, value);
         size++;
         // Dict.length * loadfactor = threshold
         if (size > threshold) {
-            Entry[] exDict = Dict;
-            Dict = new Entry[exDict.length * 2];
+            Entry[] exDict = dict;
+            dict = new Entry[exDict.length * 2];
             size = 0;
-            Deleted = new Boolean[Dict.length];
-            Arrays.fill(Deleted, false);
-            this.threshold = (int) (this.Dict.length * this.loadFactor);
+            deleted = new Boolean[dict.length];
+            Arrays.fill(deleted, false);
+            this.threshold = (int) (this.dict.length * this.loadFactor);
 
             for (Entry pair : exDict) {
-                if (pair != null && pair.key != null && pair.value != null) {
+                if (pair != null) {
                     put(pair.key, pair.value);
                 }
             }
@@ -103,53 +82,63 @@ public class HashTable {
 
     Object get(Object key) {
         int hash = resHash(key);
-        while (Dict[hash] != null || Deleted[hash]) {
-            if (Deleted[hash]) {
-                hash++;
-                if (hash == Dict.length) {
-                    hash = 0;
-                }
-                continue;
+        hash = FindNextEntry(hash - 1); //find if first hash is viable
+        while (hash != -1){
+            if (key.equals(dict[hash].key)) {
+                return dict[hash].value;
             }
-            if (key.equals(Dict[hash].key)) {
-                return Dict[hash].value;
-            }
-            hash++;
-            if (hash == Dict.length) {
-                hash = 0;
-            }
+            hash = FindNextEntry(hash);
         }
         return null;
     }
 
     Object remove(Object key) {
         int hash = resHash(key);
-        while (Dict[hash] != null || Deleted[hash]) {
-            if (Deleted[hash]) {
-                hash++;
-                if (hash == Dict.length) {
-                    hash = 0;
-                }
-                continue;
-            }
-            if (key.equals(Dict[hash].key)) {
-                Object exValue = Dict[hash].value;
-                Dict[hash].key = null;
-                Dict[hash].value = null;
-                Deleted[hash] = true;
+        hash = FindNextEntry(hash - 1); //find if first hash is viable
+        while (hash != -1){
+            if (key.equals(dict[hash].key)) {
+                Object exValue = dict[hash].value;
+                dict[hash] = null;
+                deleted[hash] = true;
                 size--;
                 return exValue;
             }
-            hash++;
-            if (hash == Dict.length) {
-                hash = 0;
-            }
+            hash = FindNextEntry(hash);
         }
         return null;
     }
 
+
+    int FindNextEntry(int hash){
+        hash++;
+        if (hash == dict.length) {
+            hash = 0;
+        }
+        while (deleted[hash]){
+            hash++;
+            if (hash == dict.length) {
+                hash = 0;
+            }
+        }
+        if (dict[hash] != null){
+            return hash;
+        }
+        return -1; //next entry don't found
+    }
+
     int size() {
         return size;
+    }
+
+    private class Entry {
+
+        final Object key;
+        Object value;
+
+        public Entry(Object key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
     }
 //
 }
